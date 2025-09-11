@@ -36,6 +36,9 @@ export default defineNuxtConfig({
   // Configuração PWA no nível raiz
   pwa: {
     registerType: 'autoUpdate',
+    client: {
+      installPrompt: true
+    },
     manifest: {
       name: 'Compras de Casa',
       short_name: 'Compras',

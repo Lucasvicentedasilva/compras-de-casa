@@ -299,16 +299,30 @@
 
       <!-- Add Item Form -->
       <div class="bg-card rounded-xl p-4 border border-border mb-6">
-        <div class="flex gap-2 mb-3">
-          <input v-model="newItem.name" placeholder="Nome do produto" class="flex-1 px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
-          <input v-model.number="newItem.price" type="number" step="0.01" placeholder="Preço" class="w-20 px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
-        </div>
-        <div class="flex gap-2 mb-3">
-          <select v-model="newItem.category" class="flex-1 px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
-            <option value="">Categoria</option>
+        <!-- Mobile Layout (Stack) -->
+        <div class="block sm:hidden space-y-3 mb-3">
+          <input v-model="newItem.name" placeholder="Nome do produto" class="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
+          <div class="flex gap-2">
+            <input v-model.number="newItem.price" type="number" step="0.01" placeholder="Preço (R$)" class="flex-1 px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
+            <input v-model.number="newItem.quantity" type="number" min="1" placeholder="Qtd" class="w-20 px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
+          </div>
+          <select v-model="newItem.category" class="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+            <option value="">Selecionar categoria</option>
             <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
           </select>
-          <input v-model.number="newItem.quantity" type="number" min="1" placeholder="Qtd" class="w-16 px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
+        </div>
+        
+        <!-- Desktop Layout (Grid) -->
+        <div class="hidden sm:block mb-3">
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-3">
+            <input v-model="newItem.name" placeholder="Nome do produto" class="sm:col-span-2 px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
+            <input v-model.number="newItem.price" type="number" step="0.01" placeholder="Preço (R$)" class="px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
+            <input v-model.number="newItem.quantity" type="number" min="1" placeholder="Qtd" class="px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
+          </div>
+          <select v-model="newItem.category" class="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+            <option value="">Selecionar categoria</option>
+            <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
+          </select>
         </div>
         <button @click="addItem" class="w-full bg-primary text-primary-foreground py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors">
           <Plus class="w-4 h-4 inline mr-2" /> Adicionar Item
