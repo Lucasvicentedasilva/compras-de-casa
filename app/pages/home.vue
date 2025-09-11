@@ -33,7 +33,7 @@
           O app definitivo para gerenciar suas listas de compras em família, reutilizar compras anteriores e manter o controle dos seus gastos. Nunca mais esqueça daquele item essencial!
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <button @click="showRegister = true" class="px-8 py-4 bg-primary text-primary-foreground rounded-lg text-lg font-semibold hover:bg-primary/90 transition-colors">
+          <button @click="navigateToRegister" class="px-8 py-4 bg-primary text-primary-foreground rounded-lg text-lg font-semibold hover:bg-primary/90 transition-colors">
             Começar Agora
           </button>
           <button @click="scrollToFeatures" class="px-8 py-4 bg-muted text-muted-foreground rounded-lg text-lg font-semibold hover:bg-accent transition-colors">

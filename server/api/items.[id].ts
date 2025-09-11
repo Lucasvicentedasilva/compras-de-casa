@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   const id = params.id ? Number(params.id) : null
 
   if (!id) {
-    throw createError({ statusCode: 400, statusMessage: 'ID inválido' })
+    throw createError({ statusCode: 400, message: 'ID inválido' })
   }
 
   await db.execute(

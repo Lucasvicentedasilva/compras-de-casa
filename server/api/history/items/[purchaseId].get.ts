@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     if (!purchaseId || isNaN(Number(purchaseId))) {
         throw createError({
             statusCode: 400,
-            statusMessage: 'ID da compra é obrigatório'
+            message: 'ID da compra é obrigatório'
         })
     }
 
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
         if (purchase.rows.length === 0) {
             throw createError({
                 statusCode: 404,
-                statusMessage: 'Compra não encontrada'
+                message: 'Compra não encontrada'
             })
         }
 
@@ -179,7 +179,7 @@ export default defineEventHandler(async (event) => {
         console.error('Erro ao buscar itens da compra:', error)
         throw createError({
             statusCode: 500,
-            statusMessage: 'Erro interno do servidor'
+            message: 'Erro interno do servidor'
         })
     }
 })

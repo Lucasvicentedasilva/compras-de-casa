@@ -5,7 +5,7 @@ import { defineEventHandler } from 'h3'
 export default defineEventHandler(async (event) => {
   const userId = requireAuth(event)
   const { id } = event.context.params || {}
-  if (!id) throw createError({ statusCode: 400, statusMessage: 'ID é obrigatório' })
+  if (!id) throw createError({ statusCode: 400, message: 'ID é obrigatório' })
 
   const method = event.node.req.method
 
@@ -28,6 +28,6 @@ export default defineEventHandler(async (event) => {
     }
 
     default:
-      throw createError({ statusCode: 405, statusMessage: `Método ${method} não permitido` })
+      throw createError({ statusCode: 405, message: `Método ${method} não permitido` })
   }
 })

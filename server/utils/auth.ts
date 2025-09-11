@@ -1,11 +1,10 @@
 import { H3Event } from 'h3'
-import { getAuth } from '@clerk/nuxt/server'
 
 export function requireAuth(event: H3Event) {
-  const { userId } = getAuth(event)
+  const { userId } = event.context.auth()
 
   if (!userId) {
-    throw createError({ statusCode: 401, statusMessage: 'Usuário não autenticado' })
+    throw createError({ statusCode: 401, message: 'Usuário não autenticado' })
   }
 
   return userId
