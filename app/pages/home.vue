@@ -26,7 +26,7 @@
         <div class="w-24 h-24 bg-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-8">
           <ShoppingCart class="w-12 h-12 text-primary" />
         </div>
-        <h1 class="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+        <h1 class="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/60 bg-clip-text ">
           Organize suas compras
         </h1>
         <p class="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">

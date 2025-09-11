@@ -20,6 +20,7 @@
     "@nuxt/image": "^1.11.0",
     "@nuxthub/core": "^0.9.0",
     "@tailwindcss/vite": "^4.1.13",
+    "@vite-pwa/nuxt": "^1.0.4",
     "lucide-vue-next": "^0.543.0",
     "nuxt": "^4.1.1",
     "tailwindcss": "^4.1.13",
