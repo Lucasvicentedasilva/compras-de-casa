@@ -1,0 +1,32 @@
+{
+  "name": "nuxt-app",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "build:production": "node scripts/clean-logs.js && nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "clean:logs": "node scripts/clean-logs.js"
+  },
+  "dependencies": {
+    "@clerk/localizations": "^3.25.0",
+    "@clerk/nuxt": "^1.8.16",
+    "@libsql/client": "^0.15.15",
+    "@nuxt/fonts": "^0.11.4",
+    "@nuxt/icon": "^2.0.0",
+    "@nuxt/image": "^1.11.0",
+    "@nuxthub/core": "^0.9.0",
+    "@tailwindcss/vite": "^4.1.13",
+    "lucide-vue-next": "^0.543.0",
+    "nuxt": "^4.1.1",
+    "tailwindcss": "^4.1.13",
+    "vue": "^3.5.21",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "wrangler": "^4.35.0"
+  }
+}
