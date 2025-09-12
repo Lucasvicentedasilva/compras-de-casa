@@ -1,5 +1,48 @@
 <template>
  <div class="min-h-screen bg-background text-foreground">
+    <!-- Modal de Changelog -->
+    <Transition
+      enter-active-class="transition-all duration-300 ease-out"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-all duration-200 ease-in"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="showChangelog" class="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex justify-center items-center p-4">
+        <Transition
+          enter-active-class="transition-all duration-300 ease-out"
+          enter-from-class="opacity-0 scale-95 translate-y-4"
+          enter-to-class="opacity-100 scale-100 translate-y-0"
+          leave-active-class="transition-all duration-200 ease-in"
+          leave-from-class="opacity-100 scale-100 translate-y-0"
+          leave-to-class="opacity-0 scale-95 translate-y-4"
+        >
+          <div class="w-full max-w-lg bg-card rounded-2xl border border-border p-6 shadow-xl">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2 class="text-xl font-bold text-foreground">Novidades desta versão 🚀</h2>
+                <p class="text-sm text-muted-foreground">v{{ changelog.version }} - {{ changelog.date }}</p>
+              </div>
+              <button @click="showChangelog = false" class="p-2 rounded-lg hover:bg-muted/20 transition-colors" aria-label="Fechar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 6l-12 12M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+            <div class="space-y-3 mb-6">
+              <div v-for="(item, idx) in changelog.novidades" :key="idx" class="flex items-start gap-2 p-3 bg-muted/30 rounded-lg">
+                <div class="text-sm text-foreground">{{ item }}</div>
+              </div>
+            </div>
+            <button @click="showChangelog = false" class="w-full bg-primary text-primary-foreground py-3 px-4 rounded-xl hover:bg-primary/90 transition-colors font-medium">
+              Continuar usando o app
+            </button>
+          </div>
+        </Transition>
+      </div>
+    </Transition>
+
     <!-- Header -->
     <header class="sticky top-0 z-50 bg-card/95 backdrop-blur border-b border-border">
       <div class="container mx-auto px-4 py-3 flex items-center justify-between">
@@ -330,7 +373,7 @@
           <div class="flex gap-3">
             <div class="flex-1">
               <input 
-                v-model.number="newItem.price" 
+                v-model.number="newItem.price"
                 type="number" 
                 step="0.01" 
                 placeholder="Preço (R$)" 
@@ -339,7 +382,7 @@
             </div>
             <div class="w-24">
               <input 
-                v-model.number="newItem.quantity" 
+                v-model.number="newItem.quantity"
                 type="number" 
                 min="1" 
                 placeholder="Qtd" 
@@ -456,7 +499,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, reactive } from 'vue'
 import { 
   ShoppingCart, Plus, Check, Trash2, Package, DollarSign, 
   History, X, Sun, Moon, LogOut
@@ -464,6 +507,10 @@ import {
 import type { Item, Purchase } from '~/composables/useShoppingList'
 import { useShoppingList } from '~/composables/useShoppingList'
 import { useAuth, useClerk } from '@clerk/vue'
+import { CHANGELOG } from '~/utils/changelog'
+
+const changelog = CHANGELOG
+const showChangelog = ref(false)
 
 // Middleware de autenticação
 definePageMeta({
@@ -510,7 +557,12 @@ const successMessage = ref('')
 const successTitle = ref('Compra finalizada!')
 
 // Novo item
-const newItem = ref<Omit<Item, 'id' | 'completed'>>({ name: '', price: 0, category: '', quantity: 1 })
+const newItem = reactive({
+  name: '',
+  price: undefined, // deixa vazio até digitar
+  quantity: undefined, // deixa vazio até digitar
+  category: ''
+})
 
 const categories = ['Grãos','Laticínios','Carnes','Frutas','Verduras','Limpeza','Higiene','Bebidas','Padaria','Congelados']
 
@@ -553,14 +605,14 @@ const groupedHistory = computed(() => {
 
 // Methods
 const addItem = async () => {
-  if (!newItem.value.name.trim()) return
+  if (!newItem.name.trim()) return
   await apiAddItem({
-    ...newItem.value,
-    name: newItem.value.name.trim(),
-    price: newItem.value.price || 0,
-    quantity: newItem.value.quantity || 1
+    ...newItem,
+    name: newItem.name.trim(),
+    price: newItem.price || 0,
+    quantity: newItem.quantity || 1
   })
-  newItem.value = { name: '', price: 0, category: '', quantity: 1 }
+  Object.assign(newItem, { name: '', price: undefined, category: '', quantity: undefined })
 }
 
 const toggleItem = async (id: number) => {
@@ -738,6 +790,13 @@ onMounted(async () => {
     showStartModal.value = true
   } else {
     showStartModal.value = false
+  }
+  
+  // Mostra changelog apenas na index (após login)
+  const lastVersion = localStorage.getItem('changelogVersion')
+  if (lastVersion !== CHANGELOG.version) {
+    showChangelog.value = true
+    localStorage.setItem('changelogVersion', CHANGELOG.version)
   }
 })
 </script>

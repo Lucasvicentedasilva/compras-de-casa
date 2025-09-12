@@ -22,7 +22,12 @@ export default defineNuxtConfig({
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'description', content: 'Organize as compras da sua família de forma inteligente! Crie listas colaborativas, reutilize compras anteriores, acompanhe gastos e nunca mais esqueça nenhum item. App moderno, seguro e fácil de usar, com autenticação e histórico completo.' },
         { name: 'author', content: 'Lucas Silva' },
-        { name: 'theme-color', content: '#0f172a' } // cor do navegador em mobile
+        // Cores dinâmicas para tema claro e escuro
+        { name: 'theme-color', content: '#fafafa', media: '(prefers-color-scheme: light)' },
+        { name: 'theme-color', content: '#0a0a0b', media: '(prefers-color-scheme: dark)' },
+        // Meta tags para iOS
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
+        { name: 'apple-mobile-web-app-capable', content: 'yes' }
       ],
       link: [
         { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
@@ -48,8 +53,8 @@ export default defineNuxtConfig({
       name: 'Compras de Casa - Lista de Supermercado',
       short_name: 'Compras',
       description: 'Organize as compras da sua família de forma inteligente! Crie listas colaborativas, reutilize compras anteriores e controle gastos.',
-      theme_color: '#0f172a',
-      background_color: '#0f172a',
+      theme_color: '#fafafa', // cor clara como padrão
+      background_color: '#ffffff', // fundo branco para carregamento
       display: 'fullscreen',
       orientation: 'portrait',
       start_url: '/',

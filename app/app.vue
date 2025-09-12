@@ -1,5 +1,83 @@
 <template>
   <NuxtPage />
+  
+  <!-- Banner de Atualização PWA -->
+  <Transition
+    enter-active-class="transition-all duration-500 ease-out"
+    enter-from-class="opacity-0 scale-95 translate-x-4"
+    enter-to-class="opacity-100 scale-100 translate-x-0"
+    leave-active-class="transition-all duration-300 ease-in"
+    leave-from-class="opacity-100 scale-100 translate-x-0"
+    leave-to-class="opacity-0 scale-95 translate-x-4"
+  >
+    <div v-if="$pwa?.needRefresh" class="fixed top-6 left-6 z-50">
+      <div class="bg-blue-600 text-white rounded-2xl shadow-xl px-4 py-3 flex items-center gap-3 backdrop-blur-sm border border-blue-500/20">
+        <div class="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <div class="text-sm font-semibold">Nova versão disponível!</div>
+          <div class="text-xs opacity-90">Toque para atualizar</div>
+        </div>
+        <button 
+          @click="handleUpdatePWA" 
+          class="px-3 py-1 bg-white/20 hover:bg-white/30 rounded-lg transition-colors text-sm font-medium"
+        >
+          Atualizar
+        </button>
+      </div>
+    </div>
+  </Transition>
+
+  <!-- Modal de Changelog -->
+  <Transition
+    enter-active-class="transition-all duration-300 ease-out"
+    enter-from-class="opacity-0"
+    enter-to-class="opacity-100"
+    leave-active-class="transition-all duration-200 ease-in"
+    leave-from-class="opacity-100"
+    leave-to-class="opacity-0"
+  >
+    <div v-if="showChangelog" class="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex justify-center items-center p-4">
+      <Transition
+        enter-active-class="transition-all duration-300 ease-out"
+        enter-from-class="opacity-0 scale-95 translate-y-4"
+        enter-to-class="opacity-100 scale-100 translate-y-0"
+        leave-active-class="transition-all duration-200 ease-in"
+        leave-from-class="opacity-100 scale-100 translate-y-0"
+        leave-to-class="opacity-0 scale-95 translate-y-4"
+      >
+        <div class="w-full max-w-lg bg-card rounded-2xl border border-border p-6 shadow-xl">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-xl font-bold text-foreground">Novidades desta versão 🚀</h2>
+              <p class="text-sm text-muted-foreground">v{{ changelog.version }} - {{ changelog.date }}</p>
+            </div>
+            <button @click="showChangelog = false" class="p-2 rounded-lg hover:bg-muted/20 transition-colors" aria-label="Fechar">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 6l-12 12M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          
+          <div class="space-y-3 mb-6">
+            <div v-for="(item, idx) in changelog.novidades" :key="idx" 
+                 class="flex items-start gap-2 p-3 bg-muted/30 rounded-lg">
+              <div class="text-sm text-foreground">{{ item }}</div>
+            </div>
+          </div>
+          
+          <button @click="showChangelog = false" 
+                  class="w-full bg-primary text-primary-foreground py-3 px-4 rounded-xl hover:bg-primary/90 transition-colors font-medium">
+            Continuar usando o app
+          </button>
+        </div>
+      </Transition>
+    </div>
+  </Transition>
+
   <!-- PWA Install Prompt -->
   <div class="fixed bottom-6 right-6 z-50">
     <!-- Feedback de sucesso após instalação -->
@@ -100,12 +178,15 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { CHANGELOG } from '~/utils/changelog'
 
 const { $pwa } = useNuxtApp()
 const showManualInstructions = ref(false)
 const instructionText = ref('')
 const showInstallSuccess = ref(false)
 const isInstalling = ref(false)
+const showChangelog = ref(false)
+const changelog = CHANGELOG
 
 // Computed para refletir o estado do $pwa
 const showInstallPrompt = computed(() => $pwa?.showInstallPrompt)
@@ -149,6 +230,13 @@ const dismissInstructions = () => {
   showManualInstructions.value = false
 }
 
+const handleUpdatePWA = () => {
+  // Marca para mostrar changelog após reload
+  localStorage.setItem('showChangelog', '1')
+  localStorage.setItem('changelogVersion', changelog.version)
+  $pwa.updateServiceWorker(true)
+}
+
 const installPwa = async () => {
   try {
     isInstalling.value = true
@@ -169,6 +257,13 @@ const installPwa = async () => {
 }
 
 onMounted(() => {
+  // Mostra changelog para todos os usuários quando a versão mudar
+  const lastVersion = localStorage.getItem('changelogVersion')
+  if (lastVersion !== changelog.version) {
+    showChangelog.value = true
+    localStorage.setItem('changelogVersion', changelog.version)
+  }
+  
   // Se não há prompt de instalação disponível, mostrar instruções manuais
   if (!showInstallPrompt.value) {
     setupInstructions()
@@ -183,5 +278,33 @@ onMounted(() => {
       }, 3000)
     })
   }
+
+  // Atualizar cor da barra do sistema conforme o tema
+  const updateThemeColor = () => {
+    const isDark = document.documentElement.classList.contains('dark')
+    const color = isDark ? '#0a0a0b' : '#fafafa' // cores do seu tema
+    
+    // Atualiza ou cria a meta tag theme-color
+    let themeColorMeta = document.querySelector('meta[name="theme-color"]:not([media])')
+    if (!themeColorMeta) {
+      themeColorMeta = document.createElement('meta')
+      themeColorMeta.name = 'theme-color'
+      document.head.appendChild(themeColorMeta)
+    }
+    themeColorMeta.content = color
+  }
+
+  // Observa mudanças no tema
+  const observer = new MutationObserver(() => {
+    updateThemeColor()
+  })
+  
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class']
+  })
+  
+  // Executa uma vez no carregamento
+  updateThemeColor()
 })
 </script>
