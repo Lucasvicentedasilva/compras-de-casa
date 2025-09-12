@@ -9,7 +9,7 @@
       leave-from-class="opacity-100"
       leave-to-class="opacity-0"
     >
-      <div v-if="showChangelog" class="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex justify-center items-center p-4">
+      <div v-if="showChangelog" class="fixed inset-0 z-50 bg-background/90 backdrop-blur-sm flex justify-center items-center p-4">
         <Transition
           enter-active-class="transition-all duration-300 ease-out"
           enter-from-class="opacity-0 scale-95 translate-y-4"
