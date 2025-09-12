@@ -59,17 +59,36 @@
       </div>
 
       <!-- Modal Inicial - Escolha de Tipo de Compra -->
-      <div v-if="showStartModal" class="fixed inset-0 z-50 bg-background/90 backdrop-blur-sm flex justify-center items-center p-4">
-        <div class="w-full max-w-md bg-card rounded-xl border border-border p-6 shadow-lg">
-          <div class="text-center mb-6">
-            <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <ShoppingCart class="w-8 h-8 text-primary" />
-            </div>
-            <h2 class="text-xl font-bold mb-2">Como deseja começar?</h2>
-            <p class="text-muted-foreground text-sm">Escolha uma opção para sua lista de compras</p>
-          </div>
+      <Transition
+        enter-active-class="transition-all duration-300 ease-out"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition-all duration-200 ease-in"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+        <div v-if="showStartModal" class="fixed inset-0 z-50 bg-background/90 backdrop-blur-sm flex justify-center items-center p-4" @keydown.esc="showStartModal = false" tabindex="-1">
+          <Transition
+            enter-active-class="transition-all duration-300 ease-out"
+            enter-from-class="opacity-0 scale-95 translate-y-4"
+            enter-to-class="opacity-100 scale-100 translate-y-0"
+            leave-active-class="transition-all duration-200 ease-in"
+            leave-from-class="opacity-100 scale-100 translate-y-0"
+            leave-to-class="opacity-0 scale-95 translate-y-4"
+          >
+            <div class="w-full max-w-md bg-card rounded-xl border border-border p-6 shadow-lg relative">
+              <button @click="showStartModal = false" class="absolute top-3 right-3 p-2 rounded-md hover:bg-muted/10 transition-colors" aria-label="Fechar modal">
+                <X class="w-4 h-4" />
+              </button>
+              <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <ShoppingCart class="w-8 h-8 text-primary" />
+                </div>
+                <h2 class="text-xl font-bold mb-2">Como deseja começar?</h2>
+                <p class="text-muted-foreground text-sm">Escolha uma opção para sua lista de compras</p>
+              </div>
 
-          <div class="space-y-3">
+              <div class="space-y-3">
             <!-- Usar Última Compra -->
             <button 
               v-if="purchaseHistory.length > 0"
@@ -126,8 +145,10 @@
               </div>
             </button>
           </div>
+            </div>
+          </Transition>
         </div>
-      </div>
+      </Transition>
 
       <!-- Modal de Seleção de Compra -->
       <div v-if="showPurchaseOptions" class="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex justify-center items-start pt-10">

@@ -50,7 +50,7 @@ export default defineNuxtConfig({
       description: 'Organize as compras da sua família de forma inteligente! Crie listas colaborativas, reutilize compras anteriores e controle gastos.',
       theme_color: '#0f172a',
       background_color: '#0f172a',
-      display: 'standalone',
+      display: 'fullscreen',
       orientation: 'portrait',
       start_url: '/',
       scope: '/',
