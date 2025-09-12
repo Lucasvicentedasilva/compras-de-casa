@@ -18,7 +18,7 @@
           leave-from-class="opacity-100 scale-100 translate-y-0"
           leave-to-class="opacity-0 scale-95 translate-y-4"
         >
-          <div class="w-full max-w-lg bg-card rounded-2xl border border-border p-6 shadow-xl">
+          <div class="w-full max-w-lg max-h-[90vh] sm:max-h-[80vh] bg-card rounded-2xl border border-border p-4 sm:p-6 shadow-xl overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
               <div>
                 <h2 class="text-xl font-bold text-foreground">Novidades desta versão 🚀</h2>
@@ -35,7 +35,7 @@
                 <div class="text-sm text-foreground">{{ item }}</div>
               </div>
             </div>
-            <button @click="showChangelog = false" class="w-full bg-primary text-primary-foreground py-3 px-4 rounded-xl hover:bg-primary/90 transition-colors font-medium">
+            <button @click="showChangelog = false" class="w-full bg-primary text-primary-foreground py-3 px-4 rounded-xl hover:bg-primary/90 transition-colors font-medium mt-2">
               Continuar usando o app
             </button>
           </div>
