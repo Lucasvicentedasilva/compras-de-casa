@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen h-dvh flex items-center justify-center bg-zinc-950">
+    <div class="min-h-screen h-dvh flex items-center justify-center bg-background">
     <SignUp
     signInUrl='/login'
     />

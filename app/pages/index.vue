@@ -1,6 +1,6 @@
 <template>
  <div class="min-h-screen bg-background text-foreground">
-    <!-- Modal de Changelog -->
+  <!-- Modal de Changelog -->
     <Transition
       enter-active-class="transition-all duration-300 ease-out"
       enter-from-class="opacity-0"
@@ -9,7 +9,7 @@
       leave-from-class="opacity-100"
       leave-to-class="opacity-0"
     >
-      <div v-if="showChangelog" class="fixed inset-0 z-50 bg-background/90 backdrop-blur-sm flex justify-center items-center p-4">
+  <div v-if="showChangelog" class="fixed inset-0 z-[120] bg-background/90 flex justify-center items-center p-2 sm:p-4" style="backdrop-filter: blur(6px); min-height: 100dvh;">
         <Transition
           enter-active-class="transition-all duration-300 ease-out"
           enter-from-class="opacity-0 scale-95 translate-y-4"
@@ -18,7 +18,7 @@
           leave-from-class="opacity-100 scale-100 translate-y-0"
           leave-to-class="opacity-0 scale-95 translate-y-4"
         >
-          <div class="w-full max-w-lg max-h-[90vh] sm:max-h-[80vh] bg-card rounded-2xl border border-border p-4 sm:p-6 shadow-xl overflow-y-auto">
+          <div class="w-full max-w-lg max-h-[90dvh] sm:max-h-[80vh] bg-card rounded-2xl border border-border p-2 sm:p-6 shadow-xl overflow-y-auto z-[130]" style="scrollbar-width: thin; scrollbar-gutter: stable;">
             <div class="flex items-center justify-between mb-4">
               <div>
                 <h2 class="text-xl font-bold text-foreground">Novidades desta versão 🚀</h2>
@@ -499,6 +499,8 @@
 </template>
 
 <script setup lang="ts">
+// Detecta ambiente de desenvolvimento
+const isDev = import.meta.env.DEV;
 import { ref, computed, onMounted, reactive } from 'vue'
 import { 
   ShoppingCart, Plus, Check, Trash2, Package, DollarSign, 
