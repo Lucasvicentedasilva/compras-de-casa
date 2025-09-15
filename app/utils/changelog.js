@@ -1,6 +1,6 @@
 // Changelog do Compras de Casa
 export const CHANGELOG = {
-  version: '1.2.4',
+  version: '1.2.5',
   date: '13/09/2025',
   novidades: [
     '🎨 Novo visual com animações suaves nos modais',

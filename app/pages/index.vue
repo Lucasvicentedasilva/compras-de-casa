@@ -513,6 +513,7 @@ const {
 
 // UI state
 const isDark = ref(typeof window !== 'undefined' ? window.matchMedia('(prefers-color-scheme: dark)').matches : false)
+const userTheme = ref<'system' | 'manual'>("system")
 const isTransitioning = ref(false)
 const isCircleActive = ref(false)
 const transitionPosition = ref({ x: 0, y: 0 })
@@ -669,6 +670,7 @@ const closePurchaseDetails = () => {
 // Dark mode
 
 function startThemeTransition(event: MouseEvent) {
+  userTheme.value = 'manual'
   // Pega a posição do botão
   let x = 0, y = 0
   if (themeBtn.value) {
@@ -843,10 +845,12 @@ onMounted(async () => {
   // Listener para mudanças do sistema operacional
   if (typeof window !== 'undefined') {
     themeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    const updateTheme = (e?: MediaQueryListEvent) => {
-      const dark = themeMediaQuery!.matches
-      isDark.value = dark
-      document.documentElement.classList.toggle('dark', dark)
+    const updateTheme = () => {
+      if (userTheme.value === 'system') {
+        const dark = themeMediaQuery!.matches
+        isDark.value = dark
+        document.documentElement.classList.toggle('dark', dark)
+      }
     }
     themeMediaQuery.addEventListener('change', updateTheme)
     // Inicializa
@@ -861,7 +865,7 @@ onMounted(async () => {
   window.addEventListener('resize', setVh);
   setVh(); // Set on initial load
 
-  document.documentElement.classList.add('dark')
+
   await fetchItems()
   await fetchHistory()
 
