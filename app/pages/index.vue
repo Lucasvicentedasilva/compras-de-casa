@@ -22,8 +22,8 @@
             <Package class="w-5 h-5" />
           </button>
           <button ref="themeBtn" @click="startThemeTransition" class="p-2 rounded-lg hover:bg-accent/10 transition-colors relative overflow-visible">
-            <Sun v-if="isDark" class="w-5 h-5" />
-            <Moon v-else class="w-5 h-5" />
+            <Sun v-if="isDark" class="w-5 h-5 text-foreground" />
+            <Moon v-else class="w-5 h-5 text-foreground" />
           </button>
           <button @click="showHistory = !showHistory" class="p-2 rounded-lg hover:bg-accent/10 transition-colors">
             <History class="w-5 h-5" />
