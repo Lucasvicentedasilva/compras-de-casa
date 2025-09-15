@@ -46,3 +46,82 @@
     --ring: 240 4.9% 83.9%;
   }
 }
+
+@layer components {
+  /* Custom Scrollbar para Modal */
+  .scrollbar-custom {
+    scrollbar-width: thin !important;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.4) transparent !important;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar {
+    width: 6px !important;
+    height: 6px !important;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-track {
+    background: transparent !important;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground) / 0.4) !important;
+    border-radius: 3px !important;
+    border: none !important;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground) / 0.6) !important;
+  }
+
+  /* Modal Configuration - Específico e agressivo */
+  .modal-content {
+    height: 90vh !important;
+    max-height: 90vh !important;
+    min-height: 400px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  /* Força o scroll no conteúdo */
+  .modal-content .flex-1.overflow-y-auto {
+    flex: 1 1 0% !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+}
+
+@layer utilities {
+  /* Responsividade Mobile com variável --vh */
+  @media (max-width: 380px) {
+    .modal-content {
+      height: calc(var(--vh, 1vh) * 95) !important;
+      max-height: calc(var(--vh, 1vh) * 95) !important;
+      min-width: 95vw !important;
+      max-width: 95vw !important;
+      border-radius: 12px !important;
+    }
+  }
+
+  @media (max-width: 320px) {
+    .modal-content {
+      height: calc(var(--vh, 1vh) * 98) !important;
+      max-height: calc(var(--vh, 1vh) * 98) !important;
+      min-width: 98vw !important;
+      max-width: 98vw !important;
+      border-radius: 8px !important;
+    }
+  }
+
+  /* Samsung S23 e similares */
+  @media (max-width: 360px) {
+    .modal-content {
+      height: calc(var(--vh, 1vh) * 90) !important;
+      max-height: calc(var(--vh, 1vh) * 90) !important;
+      min-width: 92vw !important;
+      max-width: 92vw !important;
+    }
+  }
+}

@@ -1,50 +1,15 @@
 <template>
  <div class="min-h-screen bg-background text-foreground">
-  <!-- Modal de Changelog -->
-    <Transition
-      enter-active-class="transition-all duration-300 ease-out"
-      enter-from-class="opacity-0"
-      enter-to-class="opacity-100"
-      leave-active-class="transition-all duration-200 ease-in"
-      leave-from-class="opacity-100"
-      leave-to-class="opacity-0"
-    >
-  <div v-if="showChangelog" class="fixed inset-0 z-[120] bg-background/90 flex justify-center items-center p-2 sm:p-4" style="backdrop-filter: blur(6px); min-height: 100dvh;">
-        <Transition
-          enter-active-class="transition-all duration-300 ease-out"
-          enter-from-class="opacity-0 scale-95 translate-y-4"
-          enter-to-class="opacity-100 scale-100 translate-y-0"
-          leave-active-class="transition-all duration-200 ease-in"
-          leave-from-class="opacity-100 scale-100 translate-y-0"
-          leave-to-class="opacity-0 scale-95 translate-y-4"
-        >
-          <div class="w-full max-w-lg max-h-[90dvh] sm:max-h-[80vh] bg-card rounded-2xl border border-border p-2 sm:p-6 shadow-xl overflow-y-auto z-[130]" style="scrollbar-width: thin; scrollbar-gutter: stable;">
-            <div class="flex items-center justify-between mb-4">
-              <div>
-                <h2 class="text-xl font-bold text-foreground">Novidades desta versão 🚀</h2>
-                <p class="text-sm text-muted-foreground">v{{ changelog.version }} - {{ changelog.date }}</p>
-              </div>
-              <button @click="showChangelog = false" class="p-2 rounded-lg hover:bg-muted/20 transition-colors" aria-label="Fechar">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 6l-12 12M6 6l12 12"/>
-                </svg>
-              </button>
-            </div>
-            <div class="space-y-3 mb-6">
-              <div v-for="(item, idx) in changelog.novidades" :key="idx" class="flex items-start gap-2 p-3 bg-muted/30 rounded-lg">
-                <div class="text-sm text-foreground">{{ item }}</div>
-              </div>
-            </div>
-            <button @click="showChangelog = false" class="w-full bg-primary text-primary-foreground py-3 px-4 rounded-xl hover:bg-primary/90 transition-colors font-medium mt-2">
-              Continuar usando o app
-            </button>
-          </div>
-        </Transition>
-      </div>
-    </Transition>
+    <!-- Overlay de animação de transição de tema (círculo expansivo real) -->
+    <div v-if="isTransitioning" class="fixed inset-0 z-[9999] pointer-events-none">
+      <div :style="circleAnimStyle" class="theme-switch-circle"></div>
+    </div>
 
-    <!-- Header -->
-    <header class="sticky top-0 z-50 bg-card/95 backdrop-blur border-b border-border">
+    <!-- Modal de Changelog -->
+    <ChangelogModalTest v-if="showChangelog" :changelog="changelog" @close="showChangelog = false" />
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-card/95 backdrop-blur border-b border-border relative">
       <div class="container mx-auto px-4 py-3 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
@@ -56,7 +21,7 @@
           <button @click="showStartModal = true" class="p-2 rounded-lg hover:bg-accent/10 transition-colors" title="Reutilizar compra anterior">
             <Package class="w-5 h-5" />
           </button>
-          <button @click="toggleTheme" class="p-2 rounded-lg hover:bg-accent/10 transition-colors">
+          <button ref="themeBtn" @click="startThemeTransition" class="p-2 rounded-lg hover:bg-accent/10 transition-colors relative overflow-visible">
             <Sun v-if="isDark" class="w-5 h-5" />
             <Moon v-else class="w-5 h-5" />
           </button>
@@ -69,6 +34,7 @@
         </div>
       </div>
     </header>
+    
 
     <!-- Main Content -->
     <main class="container mx-auto px-4 py-6 pb-20">
@@ -272,7 +238,7 @@
 
           <!-- Lista de itens -->
           <div v-if="selectedPurchaseItems.length > 0">
-            <h3 class="font-semibold mb-3 text-foreground">� Itens Comprados</h3>
+            <h3 class="font-semibold mb-3 text-foreground"> Itens Comprados</h3>
             <div class="space-y-2 max-h-60 overflow-y-auto">
               <div v-for="item in selectedPurchaseItems" :key="item.id" 
                    class="bg-muted/10 rounded-lg p-3 border border-border/50">
@@ -499,9 +465,9 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed, onMounted, reactive, nextTick } from 'vue'
 // Detecta ambiente de desenvolvimento
 const isDev = import.meta.env.DEV;
-import { ref, computed, onMounted, reactive } from 'vue'
 import { 
   ShoppingCart, Plus, Check, Trash2, Package, DollarSign, 
   History, X, Sun, Moon, LogOut
@@ -509,8 +475,11 @@ import {
 import type { Item, Purchase } from '~/composables/useShoppingList'
 import { useShoppingList } from '~/composables/useShoppingList'
 import { useAuth, useClerk } from '@clerk/vue'
-import { CHANGELOG } from '~/utils/changelog'
 
+import { CHANGELOG } from '~/utils/changelog'
+import ChangelogModalTest from '~/components/ChangelogModalTest.vue'
+
+// Usar o changelog global
 const changelog = CHANGELOG
 const showChangelog = ref(false)
 
@@ -543,7 +512,12 @@ const {
 } = useShoppingList()
 
 // UI state
-const isDark = ref(true)
+const isDark = ref(typeof window !== 'undefined' ? window.matchMedia('(prefers-color-scheme: dark)').matches : false)
+const isTransitioning = ref(false)
+const isCircleActive = ref(false)
+const transitionPosition = ref({ x: 0, y: 0 })
+const circleColor = ref('hsl(0 0% 100%)') // valor inicial qualquer
+const themeBtn = ref<HTMLElement | null>(null)
 const showHistory = ref(false)
 const showStartModal = ref(false)
 const activeFilter = ref('all')
@@ -693,10 +667,92 @@ const closePurchaseDetails = () => {
 }
 
 // Dark mode
-const toggleTheme = () => {
-  isDark.value = !isDark.value
-  document.documentElement.classList.toggle('dark', isDark.value)
+
+function startThemeTransition(event: MouseEvent) {
+  // Pega a posição do botão
+  let x = 0, y = 0
+  if (themeBtn.value) {
+    const rect = themeBtn.value.getBoundingClientRect()
+    x = rect.left + rect.width / 2 + window.scrollX
+    y = rect.top + rect.height / 2 + window.scrollY
+  } else if (event && event.clientX) {
+    x = event.clientX
+    y = event.clientY
+  }
+  // Define a cor do círculo ANTES de trocar o tema
+  const nextIsDark = !isDark.value
+  circleColor.value = nextIsDark ? 'hsl(240 10% 3.9%)' : 'hsl(0 0% 100%)'
+  transitionPosition.value = { x, y }
+  isTransitioning.value = true
+  isCircleActive.value = false
+
+  nextTick(() => {
+    // Força um reflow para garantir que o overlay seja renderizado
+    void document.body.offsetHeight
+
+    // Inicia a expansão do círculo
+    isCircleActive.value = true
+
+    // Só troca o tema DEPOIS da animação do círculo (650ms)
+    setTimeout(() => {
+      isDark.value = !isDark.value
+      document.documentElement.classList.toggle('dark', isDark.value)
+      isTransitioning.value = false
+      isCircleActive.value = false
+    }, 650)
+  })
 }
+
+const circleAnimStyle = computed((): Record<string, string> => {
+  const visible = isTransitioning.value || isCircleActive.value
+  if (typeof window === 'undefined') return {}
+  
+  const { x, y } = transitionPosition.value
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+  
+  // Calcula o raio máximo baseado na distância para os cantos da tela
+  // Exatamente como no código do Telegram
+  const corners = [
+    { x: 0, y: 0 },
+    { x: vw, y: 0 },
+    { x: vw, y: vh },
+    { x: 0, y: vh }
+  ]
+  const maxDist = Math.max(...corners.map(corner => 
+    Math.sqrt(Math.pow(corner.x - x, 2) + Math.pow(corner.y - y, 2))
+  ))
+  
+  const size = 60
+  const scale = isCircleActive.value ? (maxDist / (size/2)) + 0.5 : 0
+  
+  // A cor do círculo é definida no momento do clique, ANTES da troca do tema
+  // Adiciona transparência para não cobrir totalmente o conteúdo
+  let bg = circleColor.value
+  if (bg.startsWith('hsl(')) {
+    // Converte para hsl com alpha
+    bg = bg.replace('hsl(', 'hsl(').replace(')', ' / 0.85)')
+  }
+  
+  return {
+    position: 'absolute',
+    left: `${x - size/2}px`,
+    top: `${y - size/2}px`,
+    width: `${size}px`,
+    height: `${size}px`,
+    borderRadius: '50%',
+    background: bg,
+    opacity: visible ? '1' : '0',
+    transform: `scale(${scale})`,
+    transition: isCircleActive.value 
+      ? 'transform 650ms cubic-bezier(0.4, 0.0, 0.2, 1)' 
+      : 'opacity 0ms',
+    transformOrigin: 'center',
+    zIndex: '9999',
+    pointerEvents: 'none',
+    willChange: 'transform'
+  }
+})
 
 // Start modal functions
 const startManualShopping = () => {
@@ -781,19 +837,41 @@ const cancelPurchaseSelection = () => {
 }
 
 // Lifecycle
+let themeMediaQuery: MediaQueryList | null = null
+
 onMounted(async () => {
+  // Listener para mudanças do sistema operacional
+  if (typeof window !== 'undefined') {
+    themeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const updateTheme = (e?: MediaQueryListEvent) => {
+      const dark = themeMediaQuery!.matches
+      isDark.value = dark
+      document.documentElement.classList.toggle('dark', dark)
+    }
+    themeMediaQuery.addEventListener('change', updateTheme)
+    // Inicializa
+    updateTheme()
+  }
+  // Set --vh custom property for mobile height
+  const setVh = () => {
+    if (typeof window !== 'undefined') {
+      document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+    }
+  };
+  window.addEventListener('resize', setVh);
+  setVh(); // Set on initial load
+
   document.documentElement.classList.add('dark')
   await fetchItems()
   await fetchHistory()
-  
+
   // Se a lista está vazia, mostrar o modal inicial
-  // (Ou seja, sempre que não há itens pendentes)
   if (shoppingList.value.length === 0) {
     showStartModal.value = true
   } else {
     showStartModal.value = false
   }
-  
+
   // Mostra changelog apenas na index (após login)
   const lastVersion = localStorage.getItem('changelogVersion')
   if (lastVersion !== CHANGELOG.version) {
@@ -803,10 +881,30 @@ onMounted(async () => {
 })
 </script>
 
-
-
-
 <style>
+/* Botão de debug no topo do app (header) */
+.debug-btn-app {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #f3f4f6;
+  color: #222;
+  border: 1px solid #e5e7eb;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  transition: background 0.2s;
+}
+.debug-btn-app:hover {
+  background: #e5e7eb;
+}
 /* Custom scrollbar for webkit browsers */
 ::-webkit-scrollbar {
   width: 6px;
@@ -910,5 +1008,42 @@ input:focus, select:focus, button:focus {
 
 .bg-destructive\/10 {
   background-color: hsl(var(--destructive) / 0.1);
+}
+
+.theme-switch-circle {
+  will-change: transform;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+</style>
+
+<style scoped>
+/* Scrollbar personalizada para o modal de changelog */
+.scrollbar-custom {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted-foreground)) transparent;
+}
+.scrollbar-custom::-webkit-scrollbar {
+  width: 8px;
+}
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--muted-foreground));
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  min-height: 30px;
+}
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--primary));
+}
+
+/* Theme transition animation */
+.theme-switch-circle {
+  will-change: transform;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
 }
 </style>
