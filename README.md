@@ -2,6 +2,10 @@
 
 Um aplicativo moderno para gerenciar listas de compras em família, desenvolvido com Nuxt 3, Turso SQLite e Clerk Auth.
 
+## 🌐 Acesse em Produção
+
+[https://compras-de-casa.nuxt.dev/home](https://compras-de-casa.nuxt.dev/home)
+
 ## ✨ Recursos
 
 - 🛒 **Listas Inteligentes**: Organize compras com categorias, preços e quantidades
