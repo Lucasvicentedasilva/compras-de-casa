@@ -1,13 +1,11 @@
 import { useAuth } from '@clerk/vue'
 
 export default defineNuxtRouteMiddleware((to) => {
-    // Verificar se está no lado do cliente
-    if (process.client) {
-        const { userId } = useAuth()
+    const { userId } = useAuth()
 
-        // Se não estiver logado, redirecionar para home
-        if (!userId.value) {
-            return navigateTo('/home')
-        }
+    // Se não estiver logado, redirecionar para home
+    // Verifica tanto no servidor quanto no cliente
+    if (!userId.value) {
+        return navigateTo('/home', { redirectCode: 302 })
     }
 })
